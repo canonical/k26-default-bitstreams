@@ -1,0 +1,43 @@
+name: k26-default-bitstreams # you probably want to 'snapcraft register <name>'
+base: core24 # the base snap is the execution environment for this snap
+adopt-info: version
+summary: An example of how to create a snap to interface with FPGAd
+description: An example of how to create a snap to interface with FPGAd
+grade: devel # must be 'stable' to release into candidate/stable channels
+confinement: devmode # use 'strict' once you have the right plugs and slots
+plugs:
+  fpgad-dbus:
+    interface: dbus
+    bus: system
+    name: com.canonical.fpgad
+    default-provider: fpgad
+apps:
+  k26-default-bitstreams:
+    command: bin/k26-default-bitstreams
+    daemon: simple
+    install-mode: enable
+    plugs:
+      - fpgad-dbus
+    environment:
+      RUST_LOG: trace
+parts:
+  version:
+    plugin: nil
+    source: .
+    build-snaps:
+      - jq
+    override-pull: |
+      craftctl default
+      cargo_version=$(cargo metadata --no-deps --format-version 1 | jq -r .packages[0].version)
+      craftctl set version="$cargo_version+git$(date +'%Y%m%d').$(git describe --always --exclude '*')"
+  k26-default-bitstreams:
+    plugin: rust
+    source: .
+    rust-path:
+      - k26-default-bitstreams
+  bitstream-data:
+    plugin: dump
+    source: ./data/
+    source-type: local
+    organize:
+      k26-starter-kits: data/k26-starter-kits

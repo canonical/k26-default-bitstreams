@@ -7,12 +7,14 @@
 
 mod proxies;
 
-use proxies::control_proxy;
+use crate::proxies::control_proxy;
 use log::{error, info, trace};
 use std::env;
 use std::error::Error;
 use std::path::PathBuf;
+use tokio::time::{Duration, Instant, sleep};
 use zbus::Connection;
+
 
 /// Sends the dbus command to load a bitstream
 async fn call_load_bitstream(
@@ -23,9 +25,26 @@ async fn call_load_bitstream(
 ) -> Result<String, zbus::Error> {
     let connection = Connection::system().await?;
     let proxy = control_proxy::ControlProxy::new(&connection).await?;
-    proxy
-        .write_bitstream_direct(platform_str, device_handle, file_path, firmware_lookup_path)
-        .await
+    let deadline = Instant::now() + Duration::from_secs(30);
+    loop {
+        match proxy
+            .write_bitstream_direct(platform_str, device_handle, file_path, firmware_lookup_path)
+            .await {
+            Ok(str) => {
+                info!("Connected to D-Bus Control interface");
+                return Ok(format!("{}",str))
+            }
+            Err(e) => {
+                if Instant::now() >= deadline {
+                    error!("Timed out after 30s: {e}");
+                    return Err(zbus::Error::InterfaceNotFound);
+                } else {
+                    trace!("Retrying after error: {e}");
+                    sleep(Duration::from_millis(500)).await;
+                }
+            }
+        }
+    }
 }
 
 #[tokio::main]

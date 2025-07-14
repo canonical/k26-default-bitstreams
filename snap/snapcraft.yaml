@@ -1,0 +1,41 @@
+name: k26-default-bitstreams
+base: core24
+adopt-info: version
+summary: Load a default bitstream to fpga device on boot
+description: |
+  This snap applicaiton connects with fpgad to load a bitstream to the fpga0 device.
+  The contained bitstream is a fan controller for the K*26* series of Xilinx boards.
+grade: devel
+confinement: strict
+plugs:
+  fpgad-dbus:
+    interface: dbus
+    bus: system
+    name: com.canonical.fpgad
+apps:
+  k26-default-bitstreams:
+    command: bin/k26-default-bitstreams
+    daemon: oneshot
+    plugs:
+      - fpgad-dbus
+    restart-condition: always
+    start-timeout: 30s
+parts:
+  version:
+    plugin: nil
+    source: .
+    build-snaps:
+      - jq
+    override-pull: |
+      craftctl default
+      cargo_version=$(cargo metadata --no-deps --format-version 1 | jq -r .packages[0].version)
+      craftctl set version="$cargo_version+git$(date +'%Y%m%d').$(git describe --always --exclude '*')"
+  k26-default-bitstreams:
+    plugin: rust
+    source: .
+  bitstream-data:
+    plugin: dump
+    source: ./data/
+    source-type: local
+    organize:
+      k26-starter-kits: data/k26-starter-kits

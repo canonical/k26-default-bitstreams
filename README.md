@@ -58,4 +58,10 @@ parts:
     organize:
       default-bitstreams: data/k26-starter-kits
 ```
-Here `version` just runs a simple script to generate a unique version string, `k26-default-bitstreams` part defines how to build the rust package which creates the `bin/k26-default-bitstreams` used in the app section and `bitstream-data` makes a copy of the project's `./data` folder available from the snap root at `$SNAP/data`. 
+Here `version` just runs a simple script to generate a unique version string, `k26-default-bitstreams` part defines how to build the rust package which creates the `bin/k26-default-bitstreams` used in the app section and `bitstream-data` makes a copy of the project's `./data` folder available from the snap root at `$SNAP/data`.
+
+# Licenses
+
+The source code here is distributed under the GPL-3.0-only licence provided in the repository root's `LICENSE` file. 
+
+The bitstream packaged in the snap is distributed under a binary only license, provided in the `$SNAP/data/k26-starter-kits/LICENSE-BINARIES` file.

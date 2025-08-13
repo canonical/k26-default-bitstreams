@@ -13,10 +13,11 @@ plugs:
     bus: system
     name: com.canonical.fpgad
 slots:
-  bitstreams:
+  fpgad-bitstreams:
     interface: content
     source:
-      read: $SNAP/data
+      read:
+        - $SNAP/data/k26-starter-kits
 apps:
   k26-default-bitstreams:
     command: bin/k26-default-bitstreams
@@ -39,9 +40,9 @@ parts:
   k26-default-bitstreams:
     plugin: rust
     source: .
+    rust-channel: 'stable'
     rust-path:
       - k26-default-bitstreams
-    rust-channel: "stable"
   bitstream-data:
     plugin: dump
     source: https://github.com/Xilinx/kria-base-firmware

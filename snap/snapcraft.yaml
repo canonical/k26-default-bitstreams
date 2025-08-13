@@ -12,13 +12,18 @@ plugs:
     interface: dbus
     bus: system
     name: com.canonical.fpgad
+slots:
+  bitstreams:
+    interface: content
+    source:
+      read: $SNAP/data
 apps:
   k26-default-bitstreams:
     command: bin/k26-default-bitstreams
     daemon: oneshot
     plugs:
       - fpgad-dbus
-    restart-condition: always
+    restart-condition: always .github/workflows/integration_tests.yaml.yml
     start-timeout: 30s
 parts:
   version:
@@ -37,7 +42,7 @@ parts:
     plugin: dump
     source: https://github.com/Xilinx/kria-base-firmware
     source-type: git
-    override-build: |
+    override-build: |-
       echo $(ls -a)
       mkdir -p $SNAPCRAFT_PART_INSTALL/data/k26-starter-kits
       cp k26_starter_kits/k26_starter_kits.bit $SNAPCRAFT_PART_INSTALL/data/k26-starter-kits/k26_starter_kits.bit.bin

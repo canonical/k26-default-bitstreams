@@ -12,6 +12,11 @@ plugs:
     interface: dbus
     bus: system
     name: com.canonical.fpgad
+slots:
+  bitstreams:
+    interface: content
+    source:
+      read: $SNAP/data
 apps:
   k26-default-bitstreams:
     command: bin/k26-default-bitstreams

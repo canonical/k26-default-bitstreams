@@ -33,6 +33,9 @@ parts:
   k26-default-bitstreams:
     plugin: rust
     source: .
+    rust-path:
+      - k26-default-bitstreams
+    rust-channel: "stable"
   bitstream-data:
     plugin: dump
     source: https://github.com/Xilinx/kria-base-firmware

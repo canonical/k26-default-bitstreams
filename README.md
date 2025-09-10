@@ -7,10 +7,10 @@ If running on target device:
 ```shell
 snapcraft
 sudo snap install k26-default-bitstreams..._arm64.snap
-sudo snap connect k26-default-bitstreams:fpgad-dbus fpgad:dbus-daemon
+sudo snap connect k26-default-bitstreams:fpgad-dbus fpgad:daemon-dbus
 ```
 
-NB: the `fpgad:dbus-daemon` is external to this repo so may be subject to change. Check [fpgad's snapcraft.yaml](https://github.com/canonical/fpgad/blob/main/snap/snapcraft.yaml) for changes if this command fails.
+NB: the `fpgad:daemon-dbus` is external to this repo so may be subject to change. Check [fpgad's snapcraft.yaml](https://github.com/canonical/fpgad/blob/main/snap/snapcraft.yaml) for changes if this command fails.
 
 ## snapcraft.yaml explained
 
@@ -30,8 +30,8 @@ apps:
     daemon: oneshot
     plugs:
       - fpgad-dbus
-``` 
-here `daemon: oneshot` means "run once on startup and then it is finished". 
+```
+here `daemon: oneshot` means "run once on startup and then it is finished".
 
 The parts section describes how to form the snap package
 ```yaml
@@ -62,6 +62,6 @@ Here `version` just runs a simple script to generate a unique version string, `k
 
 # Licenses
 
-The source code here is distributed under the GPL-3.0-only licence provided in the repository root's `LICENSE` file. 
+The source code here is distributed under the GPL-3.0-only licence provided in the repository root's `LICENSE` file.
 
 The bitstream packaged in the snap is distributed under a binary only license, provided in the `$SNAP/data/k26-starter-kits/LICENSE-BINARIES` file.

@@ -43,5 +43,5 @@ parts:
     override-build: |
       echo $(ls -a)
       mkdir -p $SNAPCRAFT_PART_INSTALL/data/k26-starter-kits
-      cp k26_starter_kits/k26_starter_kits.bit $SNAPCRAFT_PART_INSTALL/data/k26-starter-kits/k26_starter_kits.bit.bin
+      cp k26_starter_kits/k26_starter_kits.bit $SNAPCRAFT_PART_INSTALL/data/k26-starter-kits/
       cp LICENSE-BINARIES $SNAPCRAFT_PART_INSTALL/data/k26-starter-kits/

@@ -20,6 +20,7 @@ apps:
       - fpgad-dbus
     restart-condition: always
     start-timeout: 30s
+    install-mode: disable
 parts:
   version:
     plugin: nil

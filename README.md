@@ -53,12 +53,15 @@ parts:
       - k26-default-bitstreams
   bitstream-data:
     plugin: dump
-    source: ./data/
-    source-type: local
-    organize:
-      default-bitstreams: data/k26-starter-kits
+    source: https://github.com/Xilinx/kria-base-firmware
+    source-type: git
+    override-build: |
+      echo $(ls -a)
+      mkdir -p $SNAPCRAFT_PART_INSTALL/data/k26-starter-kits
+      cp k26_starter_kits/k26_starter_kits.bit $SNAPCRAFT_PART_INSTALL/data/k26-starter-kits/
+      cp LICENSE-BINARIES $SNAPCRAFT_PART_INSTALL/data/k26-starter-kits/
 ```
-Here `version` just runs a simple script to generate a unique version string, `k26-default-bitstreams` part defines how to build the rust package which creates the `bin/k26-default-bitstreams` used in the app section and `bitstream-data` makes a copy of the project's `./data` folder available from the snap root at `$SNAP/data`.
+Here `version` just runs a simple script to generate a unique version string, `k26-default-bitstreams` part defines how to build the rust package which creates the `bin/k26-default-bitstreams` used in the app section and `bitstream-data` clones a remote repository and makes the `k26_starter_kits.bit` and `LICENSE-BINARIES` files available from the snap root at `$SNAP/data`.
 
 # Licenses
 

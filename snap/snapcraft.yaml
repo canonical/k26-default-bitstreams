@@ -42,9 +42,12 @@ parts:
     source: https://github.com/Xilinx/kria-base-firmware
     source-type: git
     build-packages:
+      - device-tree-compiler
       - xilinx-bootgen
     override-build: |
       bootgen -image k26_starter_kits/k26_starter_kits.bif -arch zynqmp -o k26_starter_kits/k26_starter_kits.bit.bin -w
+      dtc -I dts -O dtb -o k26_starter_kits/k26_starter_kits.dtbo k26_starter_kits/k26_starter_kits.dtsi
       mkdir -p $SNAPCRAFT_PART_INSTALL/data/k26-starter-kits
       cp k26_starter_kits/k26_starter_kits.bit.bin $SNAPCRAFT_PART_INSTALL/data/k26-starter-kits/
+      cp k26_starter_kits/k26_starter_kits.dtbo $SNAPCRAFT_PART_INSTALL/data/k26-starter-kits/
       cp LICENSE-BINARIES $SNAPCRAFT_PART_INSTALL/data/k26-starter-kits/

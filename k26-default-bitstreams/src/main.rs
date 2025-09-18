@@ -15,16 +15,16 @@ use std::path::PathBuf;
 use zbus::Connection;
 
 /// Sends the dbus command to load a bitstream
-async fn call_load_bitstream(
+async fn call_apply_overlay(
     platform_str: &str,
     device_handle: &str,
-    file_path: &str,
+    dtbo_path: &str,
     firmware_lookup_path: &str,
 ) -> Result<String, zbus::Error> {
     let connection = Connection::system().await?;
     let proxy = control_proxy::ControlProxy::new(&connection).await?;
     proxy
-        .write_bitstream_direct(platform_str, device_handle, file_path, firmware_lookup_path)
+        .apply_overlay(platform_str, device_handle, dtbo_path, firmware_lookup_path)
         .await
 }
 
@@ -42,7 +42,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
     trace!("Attempting to load default bitstream.");
     let snap = env::var("SNAP").expect("SNAP not set");
     let source = PathBuf::from(snap)
-        .join("data/k26-starter-kits/k26_starter_kits.bit.bin")
+        .join("data/k26-starter-kits/k26_starter_kits.dtbo")
         .to_string_lossy()
         .to_string();
     match call_set_flags("xlnx", "fpga0", 0).await{
@@ -54,9 +54,9 @@ async fn main() -> Result<(), Box<dyn Error>> {
             return Err(e.into())
         }
     }
-    match call_load_bitstream("xlnx", "fpga0", &source, "").await {
+    match call_apply_overlay("xlnx", "fpga0", &source, "").await {
         Ok(msg) => {
-            info!("write_bitstream_direct response: {msg}");
+            info!("apply_overlay response: {msg}");
             Ok(())
         }
         Err(e) => {

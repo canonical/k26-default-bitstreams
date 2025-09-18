@@ -19,11 +19,11 @@ pub trait Control {
         flags: u32,
     ) -> Result<String>;
 
-    async fn write_bitstream_direct(
+    async fn apply_overlay(
         &self,
-        platform_string: &str,
-        device_handle: &str,
-        bitstream_path_str: &str,
+        platform_compat_str: &str,
+        overlay_handle: &str,
+        overlay_source_path: &str,
         firmware_lookup_path: &str,
     ) -> Result<String>;
 }

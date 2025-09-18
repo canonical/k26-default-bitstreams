@@ -42,7 +42,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
     trace!("Attempting to load default bitstream.");
     let snap = env::var("SNAP").expect("SNAP not set");
     let source = PathBuf::from(snap)
-        .join("data/k26-starter-kits/k26_starter_kits.bit")
+        .join("data/k26-starter-kits/k26_starter_kits.bit.bin")
         .to_string_lossy()
         .to_string();
     match call_set_flags("xlnx", "fpga0", 0).await{

@@ -61,7 +61,7 @@ parts:
       cp k26_starter_kits/k26_starter_kits.bit $SNAPCRAFT_PART_INSTALL/data/k26-starter-kits/
       cp LICENSE-BINARIES $SNAPCRAFT_PART_INSTALL/data/k26-starter-kits/
 ```
-Here `version` just runs a simple script to generate a unique version string, `k26-default-bitstreams` part defines how to build the rust package which creates the `bin/k26-default-bitstreams` used in the app section and `bitstream-data` clones a remote repository and makes the `k26_starter_kits.bit` and `LICENSE-BINARIES` files available from the snap root at `$SNAP/data`.
+Here `version` just runs a simple script to generate a unique version string, `k26-default-bitstreams` part defines how to build the rust package which creates the `bin/k26-default-bitstreams` used in the app section and `bitstream-data` clones a remote repository and makes the `k26_starter_kits.bit` and `LICENSE-BINARIES` files available from the snap root at `$SNAP/data`. See [the snapcraft docs on package versioning](https://documentation.ubuntu.com/snapcraft/stable/how-to/crafting/configure-package-information/) for more information.
 
 # Licenses
 

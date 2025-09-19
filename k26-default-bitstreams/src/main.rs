@@ -28,6 +28,8 @@ async fn call_load_bitstream(
         .await
 }
 
+/// setting type of bitstream to be loaded Full, partial, authddr etc.....
+/// Note: At this moment only 0 (Full bitstream) is supported
 async fn call_set_flags(platform_str: &str, device_handle: &str, flags: u32) -> Result<String, zbus::Error> {
     let connection = Connection::system().await?;
     let proxy = control_proxy::ControlProxy::new(&connection).await?;

@@ -28,18 +28,37 @@ async fn call_load_bitstream(
         .await
 }
 
+/// setting type of bitstream to be loaded Full, partial, authddr etc.....
+/// Note: At this moment only 0 (Full bitstream) is supported
+async fn call_set_flags(platform_str: &str, device_handle: &str, flags: u32) -> Result<String, zbus::Error> {
+    let connection = Connection::system().await?;
+    let proxy = control_proxy::ControlProxy::new(&connection).await?;
+    proxy
+        .set_fpga_flags(platform_str, device_handle, flags)
+        .await
+}
+
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
     env_logger::Builder::from_env(env_logger::Env::default().default_filter_or("info")).init();
     trace!("Attempting to load default bitstream.");
     let snap = env::var("SNAP").expect("SNAP not set");
     let source = PathBuf::from(snap)
-        .join("data/k26-starter-kits/k26_starter_kits.bit.bin")
+        .join("data/k26-starter-kits/k26_starter_kits.bit")
         .to_string_lossy()
         .to_string();
+    match call_set_flags("xlnx", "fpga0", 0).await{
+        Ok(msg) => {
+            info!("set_fpga_flags response: {msg}");
+        }
+        Err(e) => {
+            error!("{e}");
+            return Err(e.into())
+        }
+    }
     match call_load_bitstream("xlnx", "fpga0", &source, "").await {
         Ok(msg) => {
-            info!("Response: {msg}");
+            info!("write_bitstream_direct response: {msg}");
             Ok(())
         }
         Err(e) => {

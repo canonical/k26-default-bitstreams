@@ -1,0 +1,7 @@
+#!/bin/sh
+
+set -e
+
+echo "enabling k26-default-bitstreams on startup"
+snapctl start --enable k26-default-bitstreams
+echo "k26-default-bitstreams enabled on startup"

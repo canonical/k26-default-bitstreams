@@ -6,7 +6,26 @@ description: |
   This snap application connects with fpgad to load a bitstream to the fpga0 device.
   The contained bitstream is a fan controller for the K*26* series of Xilinx boards.
 grade: devel
+icon: snap/assets/icon.svg
+source-code:
+  - https://github.com/canonical/k26-default-bitstreams
+license: GPL-3.0
+issues:
+  - https://github.com/canonical/k26-default-bitstreams/issues
 confinement: strict
+platforms:
+  amd64:
+    build-on: [amd64]
+    build-for: [amd64]
+  arm64:
+    build-on: [arm64]
+    build-for: [arm64]
+  ppc64el:
+    build-on: [ppc64el]
+    build-for: [ppc64el]
+  riscv64:
+    build-on: [riscv64]
+    build-for: [riscv64]
 plugs:
   fpgad-dbus:
     interface: dbus

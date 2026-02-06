@@ -14,6 +14,8 @@ NB: the `fpgad:daemon-dbus` is external to this repo so may be subject to change
 
 ## snapcraft.yaml explained
 
+### plugs and slots
+
 The `plugs` entry here allows the connection to be made between this snap and the fpgad daemon
 ```yaml
 plugs:
@@ -33,7 +35,21 @@ apps:
 ```
 here `daemon: oneshot` means "run once on startup and then it is finished".
 
-The parts section describes how to form the snap package
+The `slots` entry here allows the snap to provide bitstreams and content to the system and other snaps via the `k26-default-bitstreams:provided-content` slot:
+```
+slots:
+  provided-content:
+    interface: content
+    source:
+      read:
+        - $SNAP/data/k26-starter-kits
+```
+This should be connected to fpgad by calling `snap connect fpgad:provider-content k26-default-bitstreams:provided-content` after installation. Note that all files within the specified directory will be made available to the consumer snap, so the `override-build` step in the `bitstream-data` part must ensure that only the intended files are copied to the `$SNAPCRAFT_PART_INSTALL/data/k26-starter-kits/` directory.
+
+### parts 
+
+The parts section describes how to form the snap package:
+
 ```yaml
 
 parts:
@@ -55,13 +71,15 @@ parts:
     plugin: dump
     source: https://github.com/Xilinx/kria-base-firmware
     source-type: git
+    build-packages:
+      - xilinx-bootgen
     override-build: |
-      echo $(ls -a)
+      bootgen -image k26_starter_kits/k26_starter_kits.bif -arch zynqmp -o k26_starter_kits/k26_starter_kits.bit.bin -w
       mkdir -p $SNAPCRAFT_PART_INSTALL/data/k26-starter-kits
-      cp k26_starter_kits/k26_starter_kits.bit $SNAPCRAFT_PART_INSTALL/data/k26-starter-kits/
+      cp k26_starter_kits/k26_starter_kits.bit.bin $SNAPCRAFT_PART_INSTALL/data/k26-starter-kits/
       cp LICENSE-BINARIES $SNAPCRAFT_PART_INSTALL/data/k26-starter-kits/
 ```
-Here `version` just runs a simple script to generate a unique version string, `k26-default-bitstreams` part defines how to build the rust package which creates the `bin/k26-default-bitstreams` used in the app section and `bitstream-data` clones a remote repository and makes the `k26_starter_kits.bit` and `LICENSE-BINARIES` files available from the snap root at `$SNAP/data`. See [the snapcraft docs on package versioning](https://documentation.ubuntu.com/snapcraft/stable/how-to/crafting/configure-package-information/) for more information.
+Here `version` just runs a simple script to generate a unique version string, `k26-default-bitstreams` part defines how to build the rust package which creates the `bin/k26-default-bitstreams` used in the app section and `bitstream-data` clones a remote repository, builds the bitstream files, and makes the `k26_starter_kits.bit.bin` and `LICENSE-BINARIES` files available from the snap root at `$SNAP/data`. See [the snapcraft docs on package versioning](https://documentation.ubuntu.com/snapcraft/stable/how-to/crafting/configure-package-information/) for more information. The content interface (described above) is used to make the bitstream file available to fpgad and other snaps, but the `k26-default-bitstreams` app can also access it directly from the snap's own data directory if needed.
 
 # Licenses
 

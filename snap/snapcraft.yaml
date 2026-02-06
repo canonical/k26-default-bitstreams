@@ -13,7 +13,7 @@ plugs:
     bus: system
     name: com.canonical.fpgad
 slots:
-  fpgad-bitstreams:
+  provided-content:
     interface: content
     source:
       read:

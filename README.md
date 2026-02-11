@@ -36,15 +36,18 @@ apps:
 here `daemon: oneshot` means "run once on startup and then it is finished".
 
 The `slots` entry here allows the snap to provide bitstreams and content to the system and other snaps via the `k26-default-bitstreams:provided-content` slot:
-```
+```yaml
 slots:
   provided-content:
     interface: content
+    content: provider-content
     source:
       read:
         - $SNAP/data/k26-starter-kits
 ```
 This should be connected to fpgad by calling `snap connect fpgad:provider-content k26-default-bitstreams:provided-content` after installation. Note that all files within the specified directory will be made available to the consumer snap, so the `override-build` step in the `bitstream-data` part must ensure that only the intended files are copied to the `$SNAPCRAFT_PART_INSTALL/data/k26-starter-kits/` directory.
+
+It is mandatory that the `content:` key matches with FPGAd's definition i.e. `content: provider-content` cannot be changed. The only exception is in the case that the name of the slot is `provider-content:` and content is not specified - if not specified, the `content:` value defaults to the slot name.
 
 ### parts 
 

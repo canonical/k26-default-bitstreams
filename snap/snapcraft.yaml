@@ -34,6 +34,7 @@ plugs:
 slots:
   provided-content:
     interface: content
+    content: provider-content
     source:
       read:
         - $SNAP/data/k26-starter-kits

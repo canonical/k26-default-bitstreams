@@ -7,6 +7,7 @@ If running on target device:
 ```shell
 snapcraft
 sudo snap install k26-default-bitstreams..._arm64.snap
+sudo snap connect fpgad:provider-content k26-default-bitstreams:provided-content
 sudo snap connect k26-default-bitstreams:fpgad-dbus fpgad:daemon-dbus
 ```
 

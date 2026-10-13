@@ -1,0 +1,18 @@
+#!/bin/sh
+
+set -e
+
+set_default() {
+    current=$(snapctl get "$1")
+    if [ -z "$current" ]; then
+        snapctl set "$1=$2"
+    fi
+}
+
+set_default interval 10
+set_default mintemp 50
+set_default maxtemp 75
+set_default minstart 20
+set_default minstop 15
+set_default minpwm 1
+set_default maxpwm 255

@@ -84,6 +84,44 @@ parts:
 ```
 Here `version` just runs a simple script to generate a unique version string, `k26-default-bitstreams` part defines how to build the rust package which creates the `bin/k26-default-bitstreams` used in the app section and `bitstream-data` clones a remote repository, builds the bitstream files, and makes the `k26_starter_kits.bit.bin` and `LICENSE-BINARIES` files available from the snap root at `$SNAP/data`. See [the snapcraft docs on package versioning](https://documentation.ubuntu.com/snapcraft/stable/how-to/crafting/configure-package-information/) for more information. The content interface (described above) is used to make the bitstream file available to fpgad and other snaps, but the `k26-default-bitstreams` app can also access it directly from the snap's own data directory if needed.
 
+## fancontrol
+
+The fan controller in the example bitstream does not do anything on its own; instead, a userspace application must interact with it by setting the PWM duty cycle using the Linux `hwmon` interface. In order to demonstrate how this works and to effectively test the bitstream, `fancontrol` is bundled with this snap.
+
+`fancontrol` adjusts the fan's PWM duty cycle according to the ZynqMP's AMS temperature sensor through Linux's hwmon interface. The snap runs `usr/sbin/fancontrol` as a simple daemon, initially disabled.
+
+The daemon requires the `zynqmp-hwmon` plug (`interface: custom-device`) to be connected to a matching slot in the Ubuntu Core gadget snap that permits reading the temperature sensor and accessing the fan's PWM control. Once connected, the service will be enabled automatically.
+
+Connect the interface with the following command on Ubuntu Core:
+
+```shell
+snap connect k26-default-bitstreams:zynqmp-hwmon amd-kria:zynqmp-hwmon-slot
+```
+
+#### Configuration
+
+In order to make testing more flexible, the `fancontrol` settings can be changed with `snap set`. All values are integers; temperatures are in degrees Celsius and PWM values range from 0 to 255.
+
+| Setting | Description |
+| --- | --- |
+| `interval`| Time between temperature checks, in seconds (at least 1). |
+| `mintemp` | At or below this temperature, use `minpwm`. |
+| `maxtemp` | At or above this temperature, use `maxpwm`. |
+| `minstart`| PWM applied briefly to start a stopped fan when cooling is needed. |
+| `minstop` | Minimum running PWM used as the start of the temperature-based ramp. |
+| `minpwm`  | PWM used at low temperatures; the default leaves this fan off. |
+| `maxpwm`  | Maximum PWM used at high temperatures. |
+
+Between `mintemp` and `maxtemp`, PWM increases linearly from `minstop` to `maxpwm`. 
+
+The snap configure hook validates and updates the configuration automatically, then restarts the service if it is already running. For example:
+
+```shell
+sudo snap set k26-default-bitstreams interval=5 mintemp=40 maxtemp=70
+```
+
+Refer to the `fancontrol` man page for more information on these parameters.
+
 # Licenses
 
 The source code here is distributed under the GPL-3.0-only licence provided in the repository root's `LICENSE` file.

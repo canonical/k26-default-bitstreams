@@ -1,0 +1,7 @@
+#!/bin/sh
+
+set -e
+
+echo "disabling k26-default-bitstreams.fancontrol on startup"
+snapctl stop k26-default-bitstreams.fancontrol --disable
+echo "k26-default-bitstreams.fancontrol disabled on startup"

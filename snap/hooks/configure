@@ -1,0 +1,56 @@
+#!/bin/sh
+
+set -e
+
+get_setting() {
+    value=$(snapctl get "$1")
+    digits=${value#-}
+    case "$digits" in
+        ''|*[!0-9]*)
+            echo "$1 must be an integer" >&2
+            return 1
+            ;;
+    esac
+
+    # Avoid treating zero-padded values as octal in fancontrol's arithmetic.
+    while [ "${digits#0}" != "$digits" ]; do
+        digits=${digits#0}
+    done
+    digits=${digits:-0}
+    case "$value" in
+        -*) value="-$digits" ;;
+        *) value=$digits ;;
+    esac
+
+    if ! [ "$value" -ge "$2" ] || ! [ "$value" -le "$3" ]; then
+        echo "$1 must be between $2 and $3" >&2
+        return 1
+    fi
+    printf '%s\n' "$value"
+}
+
+INTERVAL=$(get_setting interval 1 2147483647)
+MINTEMP=$(get_setting mintemp -273 32767)
+MAXTEMP=$(get_setting maxtemp -273 32767)
+MINSTART=$(get_setting minstart 0 255)
+MINSTOP=$(get_setting minstop 0 255)
+MINPWM=$(get_setting minpwm 0 255)
+MAXPWM=$(get_setting maxpwm 0 255)
+export INTERVAL MINTEMP MAXTEMP MINSTART MINSTOP MINPWM MAXPWM
+
+config=$(mktemp "$SNAP_DATA/fancontrol.XXXXXX")
+trap 'rm -f "$config"' 0
+trap 'exit 1' HUP INT TERM
+
+j2 --format=env "$SNAP/etc/fancontrol.j2" > "$config"
+"$SNAP/usr/sbin/fancontrol" --check "$config"
+
+# Use cat rather than cp to not break the bind-file layout
+cat "$config" > "$SNAP_DATA/fancontrol"
+
+# Restart the service if it's already running
+service="$SNAP_INSTANCE_NAME.fancontrol"
+services=$(snapctl services "$service")
+if printf '%s\n' "$services" | awk -v service="$service" '$1 == service && $3 == "active" { active = 1 } END { exit !active }'; then
+    snapctl restart "$service"
+fi

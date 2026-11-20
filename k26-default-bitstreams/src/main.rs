@@ -5,14 +5,12 @@
 // k26-default-bitstreams is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranties of MERCHANTABILITY, SATISFACTORY QUALITY, or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
 // You should have received a copy of the GNU General Public License along with this program.  If not, see http://www.gnu.org/licenses/.
 
-mod proxies;
-
 use log::{error, info, trace};
-use proxies::control_proxy;
 use std::env;
 use std::error::Error;
 use std::path::PathBuf;
-use zbus::Connection;
+use fpgad_proxies::proxies::control_proxy;
+use fpgad_proxies::zbus::Connection;
 
 /// Sends the dbus command to load a bitstream
 async fn call_load_bitstream(
@@ -20,7 +18,7 @@ async fn call_load_bitstream(
     device_handle: &str,
     file_path: &str,
     firmware_lookup_path: &str,
-) -> Result<String, zbus::Error> {
+) -> Result<String, fpgad_proxies::zbus::Error> {
     let connection = Connection::system().await?;
     let proxy = control_proxy::ControlProxy::new(&connection).await?;
     proxy
@@ -30,11 +28,11 @@ async fn call_load_bitstream(
 
 /// setting type of bitstream to be loaded Full, partial, authddr etc.....
 /// Note: At this moment only 0 (Full bitstream) is supported
-async fn call_set_flags(platform_str: &str, device_handle: &str, flags: u32) -> Result<String, zbus::Error> {
+async fn call_set_flags(sub_cmd: &str, device_handle: &str, flags: &str) -> Result<String, fpgad_proxies::zbus::Error> {
     let connection = Connection::system().await?;
     let proxy = control_proxy::ControlProxy::new(&connection).await?;
     proxy
-        .set_fpga_flags(platform_str, device_handle, flags)
+        .xlnx_sys(sub_cmd, device_handle, flags)
         .await
 }
 
@@ -47,13 +45,13 @@ async fn main() -> Result<(), Box<dyn Error>> {
         .join("data/k26-starter-kits/k26_starter_kits.bit.bin")
         .to_string_lossy()
         .to_string();
-    match call_set_flags("xlnx", "fpga0", 0).await{
+    match call_set_flags("write_flags", "fpga0", "0x0").await {
         Ok(msg) => {
-            info!("set_fpga_flags response: {msg}");
+            info!("call_set_flags response: {msg}");
         }
         Err(e) => {
             error!("{e}");
-            return Err(e.into())
+            return Err(e.into());
         }
     }
     match call_load_bitstream("xlnx", "fpga0", &source, "").await {
